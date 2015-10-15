@@ -20,6 +20,7 @@ from lib.rosace.rosace import Rosace
 
 
 define('root_dir', default=dirname(realpath(__file__)), help='DOCUMENT_ROOT', type=str)
+define('hostname', default='127.0.0.1', help='run on the given host', type=str)
 define('port', default=9000, help='run on the given port', type=int)
 define('morph_interval', default=5000, help='interval of morphing', type=int)
 define('number_of_corollas', default=6, help='number of corollas', type=int)
@@ -56,7 +57,7 @@ class RosaceHandler(tornado.web.RequestHandler):
     def get(self):
         self.render(
             'rosace.html'
-        ,   hostname='localhost'
+        ,   hostname=options.hostname
         ,   port=options.port
         ,   morph_interval=options.morph_interval
         )
@@ -115,6 +116,7 @@ class Application(tornado.web.Application):
 
         handlers = [
             (r'/', RosaceHandler)
+#       ,   (r'/rosace', RosaceHandler)
         ,   (r'/ws', WebSocketHandler)
         ]
         settings = {
