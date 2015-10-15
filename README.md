@@ -6,8 +6,11 @@ As the mandala is created and managed by the server, each client sees the same r
 
 Start the server with:  python[3] rosace-app.py
 
+Watch in browser: <a href="127.0.0.1:9000">127.0.0.1:9000</a>
 
-rosace-app.py options:
+<h4>rosace-app.py options:</h4>
+<pre>
+  --hostname                       run on the given host (default 127.0.0.1)
 
   --morph_interval                 interval of morphing (default 5000)
   
@@ -17,5 +20,6 @@ rosace-app.py options:
   
   --port                           run on the given port (default 9000)
   
-  --root_dir                       DOCUMENT_ROOT (default $(app's working directory)) <b> experimental</b>
-  
+  --root_dir                       DOCUMENT_ROOT (default $(app's working directory)) 
+                                   <b>Only use, if you are knowing what you are doing</b>
+</pre>
