@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Rosace</title>
+        <style type="text/css">
+            * {
+                margin:         0;
+                padding:        0;
+                border:         0;
+                outline:        0;
+            }
+            html, body {
+                background:     black;
+            }
+            #rosace {
+                position:       absolute;
+                right:          40px;
+                top:            20px;
+                width:          600px;
+                height:         600px;
+                opacity:        0.0;
+            }
+        </style>
+
+        <script charset="utf-8" src="/static/js/jquery-1.11.1.min.js"></script>
+        <script charset="utf-8" src="/static/js/snap.svg-min.js"></script>
+
+        <script charset="utf-8">
+            $(document).ready(
+                function(){
+                    var ws = new WebSocket('ws://{{ hostname }}:{{ port }}/ws');
+                    var paperWidth  = 600.0
+                    ,   paperHeight = 600.0
+                    ,   paper       = Snap('#rosace')
+                    ,   shapeObj    = {}
+                    ;
+                    var circ = paper.circle(paperWidth / 2, paperHeight / 2, paperWidth / 2)
+                                .attr(
+                                    {
+                                        'fill':         paper.gradient('r()rgb(255,255,255)-rgb(220,220,225):60-rgb(0,0,0)')
+                                    ,   'stroke':       'none'
+                                    ,   'opacity':      0.0
+                                    }
+                                )
+                    ;
+
+
+                    ws.onopen = function(){
+                        circ.animate({ opacity: 1.0 }, {{ morph_interval }});
+                        $('#rosace').animate({ 'opacity': 1.0 }, {{ morph_interval }} / 2);
+                    };
+
+
+                    ws.onmessage = function(e){
+                        var jsonData = JSON.parse(e.data);
+
+                        if( jsonData['rosace'] !== undefined ){
+                            if( jsonData['rosace']['shapes'] !== undefined ){
+                                var keys = [];
+                                for( var k in jsonData['rosace']['shapes'] ){
+                                    keys.push(k);
+                                }
+                                keys.sort();
+                                for( var i = 0; i < keys.length; i++ ){
+                                    k = keys[i];
+                                    if( shapeObj[k] == undefined ){
+                                        shapeObj[k] = paper.path('').attr(jsonData['rosace']['shapes'][k]);
+                                    } else {
+                                        shapeObj[k].animate(jsonData['rosace']['shapes'][k], {{ morph_interval }});
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+
+                    ws.onclose = function(e){
+                        circ.animate({ 'opacity': 0.0 }, 1000);
+                        for( var k in shapeObj ){
+                            shapeObj[k].stop();
+                            shapeObj[k].animate(
+                                {
+                                    'fill':             'white'
+                                ,   'stroke':           'black'
+                                ,   'strokeWidth':      1
+                                ,   'opacity':          0.2
+                                }
+                            ,   1000
+                            );
+                        }
+                    };
+
+
+                    ws.onerror = function(e){
+                    };
+                }
+            );
+        </script>
+    </head>
+
+    <body>
+        <svg id="rosace"></svg>
+    </body>
+</html>
